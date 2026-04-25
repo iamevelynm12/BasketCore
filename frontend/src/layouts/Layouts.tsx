@@ -6,7 +6,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import UserNameMenu from "../components/UserNameMenu";
 
 const navLinks = [
-  { path: '/', label: 'Dashboard' },
+  { path: '/dashboard', label: 'Dashboard' },
   { path: '/equipos', label: 'Equipos' },
   { path: '/jugadores', label: 'Jugadores' },
   { path: '/arbitros', label: 'Árbitros' },

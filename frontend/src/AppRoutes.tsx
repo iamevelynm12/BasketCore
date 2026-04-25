@@ -6,16 +6,48 @@ import Jugadores from "./pages/Jugadores";
 import Arbitros from "./pages/Arbitros";
 import Torneos from "./pages/Torneos";
 import Posiciones from "./pages/Posiciones";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layouts><Dashboard /></Layouts>} />
-      <Route path="/equipos" element={<Layouts><Equipos /></Layouts>} />
-      <Route path="/jugadores" element={<Layouts><Jugadores /></Layouts>} />
-      <Route path="/arbitros" element={<Layouts><Arbitros /></Layouts>} />
-      <Route path="/torneos" element={<Layouts><Torneos /></Layouts>} />
-      <Route path="/posiciones" element={<Layouts><Posiciones /></Layouts>} />
+      {/* Ruta pública - Login */}
+      <Route path="/" element={<Login />} />
+
+      {/* Rutas protegidas */}
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Layouts><Dashboard /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/equipos" element={
+        <ProtectedRoute>
+          <Layouts><Equipos /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/jugadores" element={
+        <ProtectedRoute>
+          <Layouts><Jugadores /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/arbitros" element={
+        <ProtectedRoute>
+          <Layouts><Arbitros /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/torneos" element={
+        <ProtectedRoute>
+          <Layouts><Torneos /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/posiciones" element={
+        <ProtectedRoute>
+          <Layouts><Posiciones /></Layouts>
+        </ProtectedRoute>
+      } />
+
+      {/* Ruta no encontrada */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
