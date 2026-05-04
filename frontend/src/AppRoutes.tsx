@@ -8,12 +8,20 @@ import Torneos from "./pages/Torneos";
 import Posiciones from "./pages/Posiciones";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthCallBackPage from "./pages/AuthCallBackPage";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "./queryClient";
 
 const AppRoutes = () => {
   return (
+    <QueryClientProvider client={queryClient}>
     <Routes>
       {/* Ruta pública - Login */}
       <Route path="/" element={<Login />} />
+
+      {/* AuthCallBack*/}
+
+      <Route path="/auth-callback" element={<AuthCallBackPage />} />
 
       {/* Rutas protegidas */}
       <Route path="/dashboard" element={
@@ -50,6 +58,7 @@ const AppRoutes = () => {
       {/* Ruta no encontrada */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
+    </QueryClientProvider>
   );
 };
 

@@ -45,7 +45,7 @@ export default function Login() {
           onClick={() => loginWithRedirect()}
           className="w-full bg-blue-950 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2">
           Iniciar Sesión
-        </button>
+        </button> 
 
         {/* Footer */}
         <p className="text-xs text-gray-400">

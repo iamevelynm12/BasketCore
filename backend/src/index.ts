@@ -11,9 +11,13 @@ import posicionesRouter from './routes/posiciones';
 
 dotenv.config(); 
 
+//rutas de usuarios
+import userRoutes from './routes/userRoutes';
+
 mongoose.connect(process.env.DB_CONNECTION_STRING as string)
   .then(() => {
     console.log("Base de datos conectada");
+    console.log(process.env.DB_CONNECTION_STRING);
   })
   .catch((error) => {
     console.log(error);
@@ -23,6 +27,8 @@ mongoose.connect(process.env.DB_CONNECTION_STRING as string)
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+app.use('/api/user', userRoutes);
 
 app.use('/api/torneos', torneosRouter);
 app.use('/api/equipos', equiposRouter);
