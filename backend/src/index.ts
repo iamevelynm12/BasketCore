@@ -8,11 +8,9 @@ import equiposRouter from './routes/equipos';
 import jugadoresRouter from './routes/jugadores';
 import arbitrosRouter from './routes/arbitros';
 import posicionesRouter from './routes/posiciones';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config(); 
-
-//rutas de usuarios
-import userRoutes from './routes/userRoutes';
 
 mongoose.connect(process.env.DB_CONNECTION_STRING as string)
   .then(() => {
@@ -28,8 +26,13 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/api/user', userRoutes);
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
+app.use('/api/users', userRoutes);
+console.log("Ruta /api/users registrada");
 app.use('/api/torneos', torneosRouter);
 app.use('/api/equipos', equiposRouter);
 app.use('/api/jugadores', jugadoresRouter);
@@ -37,7 +40,7 @@ app.use('/api/arbitros', arbitrosRouter);
 app.use('/api/posiciones', posicionesRouter);
 
 app.get('/test', (req, res) => {
-  res.json({ mensaje: 'funciona' });
+  res.json({ mensaje: 'Funcionaa' });
 });
 
 app.listen(3002, () => {

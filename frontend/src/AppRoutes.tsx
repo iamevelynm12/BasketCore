@@ -11,10 +11,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCallBackPage from "./pages/AuthCallBackPage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "./queryClient";
+import UserProfilePage from "./pages/UserProfilePage";
 
 const AppRoutes = () => {
   return (
-    <QueryClientProvider client={queryClient}>
+    
     <Routes>
       {/* Ruta pública - Login */}
       <Route path="/" element={<Login />} />
@@ -24,6 +25,11 @@ const AppRoutes = () => {
       <Route path="/auth-callback" element={<AuthCallBackPage />} />
 
       {/* Rutas protegidas */}
+      <Route path="/perfil" element={
+        <ProtectedRoute>
+          <Layouts><UserProfilePage /></Layouts>
+        </ProtectedRoute>
+      } />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Layouts><Dashboard /></Layouts>
@@ -58,7 +64,7 @@ const AppRoutes = () => {
       {/* Ruta no encontrada */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
-    </QueryClientProvider>
+    
   );
 };
 

@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import MainNav from '../components/MainNav';
 import { useAuth0 } from "@auth0/auth0-react";
 import UserNameMenu from "../components/UserNameMenu";
 

@@ -8,14 +8,12 @@ export default function UserNameMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 text-white hover:text-blue-200 cursor-pointer outline-none w-full">
-          <CircleUserRound size={20} />
+      <DropdownMenuTrigger className="flex items-center gap-2 text-white hover:text-blue-200 cursor-pointer outline-none w-full">
+        <CircleUserRound size={20} />
           <span className="text-sm truncate">{user?.email}</span>
-        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="end" className="w-48">
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem>
           <Link to="/perfil">
             Perfil
           </Link>

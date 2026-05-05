@@ -15,7 +15,7 @@ export default function AuthCallBackPage() {
         { auth0Id: user.sub, email: user.email },
         {
           onSettled: () => {
-            navigate("/");
+            navigate("/dashboard");
           },
         }
       );
