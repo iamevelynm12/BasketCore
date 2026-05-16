@@ -9,8 +9,7 @@ import Posiciones from "./pages/Posiciones";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCallBackPage from "./pages/AuthCallBackPage";
-import { QueryClientProvider } from "@tanstack/react-query";
-import queryClient from "./queryClient";
+
 import UserProfilePage from "./pages/UserProfilePage";
 
 const AppRoutes = () => {
@@ -25,11 +24,6 @@ const AppRoutes = () => {
       <Route path="/auth-callback" element={<AuthCallBackPage />} />
 
       {/* Rutas protegidas */}
-      <Route path="/perfil" element={
-        <ProtectedRoute>
-          <Layouts><UserProfilePage /></Layouts>
-        </ProtectedRoute>
-      } />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Layouts><Dashboard /></Layouts>
@@ -60,11 +54,16 @@ const AppRoutes = () => {
           <Layouts><Posiciones /></Layouts>
         </ProtectedRoute>
       } />
+      <Route path="/perfil" element={
+        <ProtectedRoute>
+          <Layouts><UserProfilePage /></Layouts>
+     </ProtectedRoute>
+      } />
 
       {/* Ruta no encontrada */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
-    
+   
   );
 };
 

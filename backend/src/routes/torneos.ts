@@ -3,6 +3,8 @@ import Torneo from '../models/Torneo';
 
 const router = Router();
 
+
+
 // Obtener todos
 router.get('/', async (req, res) => {
   try {

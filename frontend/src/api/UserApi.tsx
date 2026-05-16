@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth0 } from "@auth0/auth0-react";
 import { toast } from "sonner";
-import type{ User, UpdateUser , BackEndUser} from "./types";
+import type { User, UpdateUser, BackEndUser } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -71,14 +71,12 @@ export const useUpdateUser = () => {
 export const useGetUser = () => {
   const { getAccessTokenSilently } = useAuth0();
 
-  const getUserRequest = async ():Promise<BackEndUser> => {
+  const getUserRequest = async (): Promise<BackEndUser> => {
     const accessToken = await getAccessTokenSilently();
-    const response = await fetch(API_BASE_URL + '/api/users', {
-      method: 'GET',
+    const response = await fetch(`${API_BASE_URL}/api/users`, {
       headers: {
-        Authorization: 'Bearer '+accessToken,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
     if (!response.ok) {
       throw new Error("Error al obtener el usuario");
@@ -90,4 +88,4 @@ export const useGetUser = () => {
     queryKey: ["user"],
     queryFn: getUserRequest,
   });
-};
+}; 

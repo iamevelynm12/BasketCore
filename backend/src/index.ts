@@ -9,8 +9,16 @@ import jugadoresRouter from './routes/jugadores';
 import arbitrosRouter from './routes/arbitros';
 import posicionesRouter from './routes/posiciones';
 import userRoutes from './routes/userRoutes';
+import morgan from 'morgan';
+import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config(); 
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 mongoose.connect(process.env.DB_CONNECTION_STRING as string)
   .then(() => {
@@ -46,3 +54,5 @@ app.get('/test', (req, res) => {
 app.listen(3002, () => {
   console.log("App corriendo en el puerto: 3002");
 });
+
+app.use(morgan('dev'));
