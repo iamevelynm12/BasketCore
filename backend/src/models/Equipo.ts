@@ -8,6 +8,7 @@ const equipoSchema = new mongoose.Schema({
   carrera: { type: String },
   ganadas: { type: Number, default: 0 },
   derrotas: { type: Number, default: 0 },
+  imageUrl: { type: String },
 }, { timestamps: true });
 
 export default mongoose.model('Equipo', equipoSchema);
