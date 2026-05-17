@@ -39,4 +39,31 @@ export const api = {
 
   // Posiciones
   getPosiciones: () => fetch(`${API_URL}/posiciones`).then(res => res.json()),
+  createPosicion: (data: any) => fetch(`${API_URL}/posiciones`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => res.json()),
+  updatePosicion: (id: string, data: any) => fetch(`${API_URL}/posiciones/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => res.json()),
+  deletePosicion: (id: string) => fetch(`${API_URL}/posiciones/${id}`, { method: 'DELETE' }).then(res => res.json()),
+
+
+getTablaPosiciones: () => fetch(`${API_URL}/equipos`).then(res => res.json()),
+
+  // Partidos ANOTACIONES
+  getPartidoEnVivo: () => fetch(`${API_URL}/partidos/en-vivo`).then(res => res.json()),
+  createPartido: (data: any) => fetch(`${API_URL}/partidos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => res.json()),
+  updatePartido: (id: string, data: any) => fetch(`${API_URL}/partidos/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(res => res.json()),
 };

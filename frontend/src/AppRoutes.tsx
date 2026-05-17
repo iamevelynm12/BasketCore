@@ -6,6 +6,7 @@ import Jugadores from "./pages/Jugadores";
 import Arbitros from "./pages/Arbitros";
 import Torneos from "./pages/Torneos";
 import Posiciones from "./pages/Posiciones";
+import Anotaciones from './pages/Anotaciones';
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCallBackPage from "./pages/AuthCallBackPage";
@@ -58,6 +59,11 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <Layouts><UserProfilePage /></Layouts>
      </ProtectedRoute>
+      } />
+      <Route path="/anotaciones" element={
+        <ProtectedRoute>
+          <Layouts><Anotaciones /></Layouts>
+        </ProtectedRoute>
       } />
 
       {/* Ruta no encontrada */}

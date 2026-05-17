@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-
+import partidosRoutes from './routes/partidos';
 import torneosRouter from './routes/torneos';
 import equiposRouter from './routes/equipos';
 import jugadoresRouter from './routes/jugadores';
@@ -41,7 +41,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/users', userRoutes);
-console.log("Ruta /api/users registrada");
+
+app.use('/api/partidos', partidosRoutes);
 app.use('/api/torneos', torneosRouter);
 app.use('/api/equipos', equiposRouter);
 app.use('/api/jugadores', jugadoresRouter);
