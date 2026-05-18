@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface Equipo {
   _id: string;
   nombre_equipo: string;
+}
+
+interface Jugador {
+  _id: string;
+  nombre_jugador: string;
+  num_playera: number;
+  puntos_totales: number;
+  asistencias: number;
+  id_equipo: any;
 }
 
 interface Partido {
@@ -18,6 +28,7 @@ interface Partido {
 
 export default function Anotaciones() {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
+  const [jugadores, setJugadores] = useState<Jugador[]>([]);
   const [partido, setPartido] = useState<Partido | null>(null);
   const [loading, setLoading] = useState(true);
   const [idEquipo1, setIdEquipo1] = useState('');
@@ -26,17 +37,26 @@ export default function Anotaciones() {
   const [segundos, setSegundos] = useState(0);
   const [corriendo, setCorriendo] = useState(false);
 
-  // Carga inicial — solo una vez
+  // Modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [equipoAnotador, setEquipoAnotador] = useState<1 | 2>(1);
+  const [puntosAnotar, setPuntosAnotar] = useState(1);
+  const [jugadorSeleccionado, setJugadorSeleccionado] = useState('');
+  const [hayAsistencia, setHayAsistencia] = useState(false);
+  const [asistidorSeleccionado, setAsistidorSeleccionado] = useState('');
+
   useEffect(() => {
     let vivo = true;
     async function cargar() {
       try {
-        const [listaEquipos, partidoActivo] = await Promise.all([
+        const [listaEquipos, partidoActivo, listaJugadores] = await Promise.all([
           api.getEquipos(),
           api.getPartidoEnVivo(),
+          api.getJugadores(),
         ]);
         if (!vivo) return;
         setEquipos(Array.isArray(listaEquipos) ? listaEquipos : listaEquipos.equipos ?? []);
+        setJugadores(Array.isArray(listaJugadores) ? listaJugadores : []);
         setPartido(partidoActivo ?? null);
         if (partidoActivo) {
           setMinutos(partidoActivo.tiempo_minutos ?? 10);
@@ -52,7 +72,7 @@ export default function Anotaciones() {
     return () => { vivo = false; };
   }, []);
 
-  // Cronómetro local
+  // Cronómetro
   useEffect(() => {
     if (!corriendo) return;
     const intervalo = setInterval(() => {
@@ -74,23 +94,67 @@ export default function Anotaciones() {
     setSegundos(0);
   };
 
-  const sumarPuntos = async (equipo: 1 | 2, cantidad: number) => {
+  const jugadoresEquipo = (equipo: 1 | 2) => {
+    if (!partido) return [];
+    const idEquipo = equipo === 1
+      ? partido.id_equipo1._id
+      : partido.id_equipo2._id;
+    return jugadores.filter(j =>
+      j.id_equipo?._id === idEquipo || j.id_equipo === idEquipo
+    );
+  };
+
+  const abrirModal = (equipo: 1 | 2, puntos: number) => {
+    setEquipoAnotador(equipo);
+    setPuntosAnotar(puntos);
+    setJugadorSeleccionado('');
+    setHayAsistencia(false);
+    setAsistidorSeleccionado('');
+    setModalVisible(true);
+  };
+
+  const confirmarAnotacion = async () => {
     if (!partido) return;
-    const p1 = partido.puntos_equipo1 + (equipo === 1 ? cantidad : 0);
-    const p2 = partido.puntos_equipo2 + (equipo === 2 ? cantidad : 0);
-    // Optimista: actualizamos pantalla al instante
+    setModalVisible(false); // Cerrar PRIMERO para evitar doble click
+
+    const p1 = partido.puntos_equipo1 + (equipoAnotador === 1 ? puntosAnotar : 0);
+    const p2 = partido.puntos_equipo2 + (equipoAnotador === 2 ? puntosAnotar : 0);
+
     setPartido({ ...partido, puntos_equipo1: p1, puntos_equipo2: p2 });
+
     try {
       await api.updatePartido(partido._id, { puntos_equipo1: p1, puntos_equipo2: p2 });
+
+      if (jugadorSeleccionado) {
+        const jugador = jugadores.find(j => j._id === jugadorSeleccionado);
+        if (jugador) {
+          await api.updateJugador(jugadorSeleccionado, {
+            puntos_totales: (jugador.puntos_totales || 0) + puntosAnotar,
+          });
+        }
+      }
+
+      if (hayAsistencia && asistidorSeleccionado) {
+        const asistidor = jugadores.find(j => j._id === asistidorSeleccionado);
+        if (asistidor) {
+          await api.updateJugador(asistidorSeleccionado, {
+            asistencias: (asistidor.asistencias || 0) + 1,
+          });
+        }
+      }
+
+      const listaActualizada = await api.getJugadores();
+      setJugadores(Array.isArray(listaActualizada) ? listaActualizada : []);
+      toast.success(`+${puntosAnotar} registrado`);
     } catch (e) {
-      console.error('Error al guardar puntos:', e);
+      toast.error('Error al guardar la anotación');
     }
   };
 
   const crearPartido = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!idEquipo1 || !idEquipo2) return alert('Selecciona ambos equipos');
-    if (idEquipo1 === idEquipo2) return alert('No puede ser el mismo equipo');
+    if (!idEquipo1 || !idEquipo2) return toast.error('Selecciona ambos equipos');
+    if (idEquipo1 === idEquipo2) return toast.error('No puede ser el mismo equipo');
     try {
       await api.createPartido({
         id_equipo1: idEquipo1,
@@ -100,37 +164,35 @@ export default function Anotaciones() {
         tiempo_minutos: 10,
         estado: 'En progreso',
       });
-      // Recargamos para traer el partido con populate
       const p = await api.getPartidoEnVivo();
       setPartido(p ?? null);
       setMinutos(10);
       setSegundos(0);
     } catch (e) {
-      console.error('Error al crear partido:', e);
+      toast.error('Error al crear partido');
     }
   };
 
   const finalizar = async () => {
-  if (!partido) return;
-  console.log('FINALIZANDO partido ID:', partido._id, 'Puntos:', partido.puntos_equipo1, '-', partido.puntos_equipo2);
-  try {
-    setCorriendo(false);
-    const res = await api.updatePartido(partido._id, {
-      estado: 'Terminado',
-      puntos_equipo1: partido.puntos_equipo1,
-      puntos_equipo2: partido.puntos_equipo2,
-    });
-    console.log('Respuesta del backend:', res);
-    alert('¡Partido finalizado!');
-    setPartido(null);
-    setIdEquipo1('');
-    setIdEquipo2('');
-    setMinutos(10);
-    setSegundos(0);
-  } catch (e) {
-    console.error('Error al finalizar:', e);
-  }
-};
+    if (!partido) return;
+    if (!window.confirm('¿Finalizar partido y guardar estadísticas?')) return;
+    try {
+      setCorriendo(false);
+      await api.updatePartido(partido._id, {
+        estado: 'Terminado',
+        puntos_equipo1: partido.puntos_equipo1,
+        puntos_equipo2: partido.puntos_equipo2,
+      });
+      toast.success('¡Partido finalizado! Estadísticas actualizadas.');
+      setPartido(null);
+      setIdEquipo1('');
+      setIdEquipo2('');
+      setMinutos(10);
+      setSegundos(0);
+    } catch (e) {
+      toast.error('Error al finalizar el partido');
+    }
+  };
 
   if (loading) return <p className="p-6 text-gray-500">Cargando...</p>;
 
@@ -141,8 +203,105 @@ export default function Anotaciones() {
         <p className="text-sm text-gray-500 uppercase tracking-wide">Partidos en vivo</p>
       </div>
 
+      {/* Modal */}
+      {modalVisible && partido && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-4">
+            <h2 className="text-lg font-bold text-blue-950">
+              +{puntosAnotar} — ¿Quién anotó?
+            </h2>
+
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">
+                Jugador que anotó (opcional)
+              </label>
+              <select
+                value={jugadorSeleccionado}
+                onChange={e => setJugadorSeleccionado(e.target.value)}
+                className="w-full border rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="">— Seleccionar —</option>
+                {jugadoresEquipo(equipoAnotador).map(j => (
+                  <option key={j._id} value={j._id}>
+                    #{j.num_playera} {j.nombre_jugador}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-2">
+                ¿Hubo asistencia?
+              </label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setHayAsistencia(true)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold border transition-colors ${
+                    hayAsistencia
+                      ? 'bg-blue-950 text-white border-blue-950'
+                      : 'bg-white text-gray-600 border-gray-300'
+                  }`}
+                >
+                  ✓ Sí
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setHayAsistencia(false); setAsistidorSeleccionado(''); }}
+                  className={`flex-1 py-2 rounded-lg text-sm font-bold border transition-colors ${
+                    !hayAsistencia
+                      ? 'bg-blue-950 text-white border-blue-950'
+                      : 'bg-white text-gray-600 border-gray-300'
+                  }`}
+                >
+                  ✗ No
+                </button>
+              </div>
+            </div>
+
+            {hayAsistencia && (
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">
+                  ¿Quién asistió?
+                </label>
+                <select
+                  value={asistidorSeleccionado}
+                  onChange={e => setAsistidorSeleccionado(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">— Seleccionar —</option>
+                  {jugadoresEquipo(equipoAnotador)
+                    .filter(j => j._id !== jugadorSeleccionado)
+                    .map(j => (
+                      <option key={j._id} value={j._id}>
+                        #{j.num_playera} {j.nombre_jugador}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={confirmarAnotacion}
+                className="flex-1 bg-blue-950 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-900"
+              >
+                Confirmar
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalVisible(false)}
+                className="flex-1 border border-gray-300 py-2 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!partido ? (
-        /* ── Sin partido ── */
         <div className="bg-white rounded-xl shadow p-6 max-w-md mx-auto text-center space-y-4">
           <span className="text-4xl">🏀</span>
           <h2 className="text-lg font-bold text-blue-950">No hay partido en vivo</h2>
@@ -171,7 +330,6 @@ export default function Anotaciones() {
           </form>
         </div>
       ) : (
-        /* ── Partido activo ── */
         <div className="bg-blue-950 rounded-xl p-8 text-white space-y-8">
 
           {/* Cronómetro */}
@@ -198,7 +356,6 @@ export default function Anotaciones() {
 
           {/* Marcador */}
           <div className="grid grid-cols-2 gap-8">
-            {/* Local */}
             <div className="flex flex-col items-center gap-4">
               <span className="text-xs font-bold text-blue-300">LOCAL</span>
               <h3 className="text-lg font-bold">{partido.id_equipo1?.nombre_equipo}</h3>
@@ -207,7 +364,7 @@ export default function Anotaciones() {
               </div>
               <div className="flex gap-2">
                 {[1, 2, 3].map(n => (
-                  <button key={n} type="button" onClick={() => sumarPuntos(1, n)}
+                  <button key={n} type="button" onClick={() => abrirModal(1, n)}
                     className="bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">
                     +{n}
                   </button>
@@ -215,7 +372,6 @@ export default function Anotaciones() {
               </div>
             </div>
 
-            {/* Visitante */}
             <div className="flex flex-col items-center gap-4">
               <span className="text-xs font-bold text-blue-300">VISITANTE</span>
               <h3 className="text-lg font-bold">{partido.id_equipo2?.nombre_equipo}</h3>
@@ -224,7 +380,7 @@ export default function Anotaciones() {
               </div>
               <div className="flex gap-2">
                 {[1, 2, 3].map(n => (
-                  <button key={n} type="button" onClick={() => sumarPuntos(2, n)}
+                  <button key={n} type="button" onClick={() => abrirModal(2, n)}
                     className="bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">
                     +{n}
                   </button>
@@ -240,7 +396,6 @@ export default function Anotaciones() {
               ✪ Finalizar y Guardar Partido
             </button>
           </div>
-
         </div>
       )}
     </div>

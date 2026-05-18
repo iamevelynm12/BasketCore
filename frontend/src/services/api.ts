@@ -28,6 +28,13 @@ export const api = {
   }).then(res => res.json()),
   deleteJugador: (id: string) => fetch(`${API_URL}/jugadores/${id}`, { method: 'DELETE' }).then(res => res.json()),
 
+  // Jugadores — agregar al objeto api existente
+updateJugador: (id: string, data: any) => fetch(`${API_URL}/jugadores/${id}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data)
+}).then(res => res.json()),
+
   // Arbitros
   getArbitros: () => fetch(`${API_URL}/arbitros`).then(res => res.json()),
   createArbitro: (data: any) => fetch(`${API_URL}/arbitros`, {
