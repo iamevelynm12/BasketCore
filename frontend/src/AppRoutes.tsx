@@ -7,6 +7,7 @@ import Arbitros from "./pages/Arbitros";
 import Torneos from "./pages/Torneos";
 import Posiciones from "./pages/Posiciones";
 import Anotaciones from './pages/Anotaciones';
+import Configuracion from './pages/Configuraciones';
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCallBackPage from "./pages/AuthCallBackPage";
@@ -63,6 +64,11 @@ const AppRoutes = () => {
       <Route path="/anotaciones" element={
         <ProtectedRoute>
           <Layouts><Anotaciones /></Layouts>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuracion" element={
+        <ProtectedRoute>
+          <Layouts><Configuracion /></Layouts>
         </ProtectedRoute>
       } />
 
