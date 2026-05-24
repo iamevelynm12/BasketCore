@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 
-// Definimos la estructura real del equipo que viene con sus estadísticas de anotaciones
 type EquipoPosicion = { 
   _id: string; 
   nombre_equipo: string; 
@@ -16,13 +15,29 @@ export default function Posiciones() {
   const [equipos, setEquipos] = useState<EquipoPosicion[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Cargamos directamente la tabla de rendimiento del backend
   const cargarTabla = async () => {
     try {
       setLoading(true);
       const datos = await api.getTablaPosiciones();
       if (Array.isArray(datos)) {
-        setEquipos(datos);
+        
+        // CORRECCIÓN: Ordenar dinámicamente antes de actualizar el estado
+        const equiposOrdenados = [...datos].sort((a, b) => {
+          const ganadasA = a.ganadas || 0;
+          const ganadasB = b.ganadas || 0;
+          const derrotasA = a.derrotas || 0;
+          const derrotasB = b.derrotas || 0;
+
+          // 1. Criterio principal: Mayor número de victorias
+          if (ganadasB !== ganadasA) {
+            return ganadasB - ganadasA; // El que tenga más victorias sube
+          }
+          
+          // 2. Criterio de desempate: Menor número de derrotas
+          return derrotasA - derrotasB; // El que tenga menos derrotas sube
+        });
+
+        setEquipos(equiposOrdenados);
       }
     } catch (error) {
       console.error("Error al cargar la tabla de posiciones en vivo:", error);
@@ -37,7 +52,7 @@ export default function Posiciones() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto p-4">
-      {/* Encabezado limpio sin botones de agregar */}
+      {/* Encabezado */}
       <div className="flex justify-between items-center border-b pb-4">
         <div>
           <h1 className="text-2xl font-black text-blue-950 tracking-tight">Tabla de Posiciones</h1>
@@ -49,7 +64,7 @@ export default function Posiciones() {
           onClick={cargarTabla}
           className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
         >
-          🔄 Actualizar Tabla
+          Actualizar Tabla
         </button>
       </div>
 
@@ -81,21 +96,19 @@ export default function Posiciones() {
                 const derrotas = equipo.derrotas || 0;
                 const jugados = ganadas + derrotas;
                 
-                // Cálculo automático del porcentaje de victorias
                 const rendimiento = jugados > 0 
                   ? `${Math.round((ganadas / jugados) * 100)}%` 
                   : '0%';
 
-                // Estilo visual para el podio (Top 3)
                 const esTop3 = index < 3;
-                const medallas = ['🥇', '🥈', '🥉'];
+                const medallas = ['#1', '#2', '#3'];
 
                 return (
                   <tr key={equipo._id} className="hover:bg-gray-50/50 transition-colors">
                     {/* Lugar numérico */}
                     <td className="p-4 text-center font-bold text-sm">
                       {esTop3 ? (
-                        <span className="text-base" title={`Puesto ${index + 1}`}>{medallas[index]}</span>
+                        <span className="text-base text-blue-950 font-black" title={`Puesto ${index + 1}`}>{medallas[index]}</span>
                       ) : (
                         <span className="text-gray-400 font-mono">#{index + 1}</span>
                       )}
@@ -122,7 +135,7 @@ export default function Posiciones() {
                       </div>
                     </td>
 
-                    {/* Estadísticas de partidos dinámicas */}
+                    {/* Estadísticas */}
                     <td className="p-4 text-center font-bold text-sm text-emerald-600 bg-emerald-50/20">
                       {ganadas}
                     </td>
@@ -133,7 +146,7 @@ export default function Posiciones() {
                       {jugados}
                     </td>
 
-                    {/* Porcentaje final calculado */}
+                    {/* Porcentaje final */}
                     <td className="p-4 text-center font-black text-blue-950 text-sm">
                       {rendimiento}
                     </td>

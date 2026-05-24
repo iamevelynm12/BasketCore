@@ -56,90 +56,136 @@ export default function Dashboard() {
     cargarStats();
   }, []);
 
-  const tarjetas = [
-    {
-      titulo: 'Jugadores',
-      descripcion: 'Roster registrado',
-      valor: stats.jugadores,
-      icono: '🏃',
-      ruta: '/jugadores',
-      color: 'border-blue-400',
-    },
-    {
-      titulo: 'Equipos',
-      descripcion: 'Equipos activos',
-      valor: stats.equipos,
-      icono: '🏀',
-      ruta: '/equipos',
-      color: 'border-orange-400',
-    },
-    {
-      titulo: 'Partidos Jugados',
-      descripcion: 'Total de encuentros',
-      valor: stats.partidosJugados,
-      icono: '📊',
-      ruta: '/posiciones',
-      color: 'border-green-400',
-    },
-    {
-      titulo: 'Próximos Juegos',
-      descripcion: 'Ir a anotaciones',
-      valor: null,
-      icono: '📅',
-      ruta: '/anotaciones',
-      color: 'border-purple-400',
-    },
-    {
-      titulo: 'Torneos',
-      descripcion: 'Torneos registrados',
-      valor: stats.torneos,
-      icono: '🏆',
-      ruta: '/torneos',
-      color: 'border-yellow-400',
-    },
-    {
-      titulo: 'Árbitros',
-      descripcion: 'Cuerpo arbitral',
-      valor: stats.arbitros,
-      icono: '👨‍⚖️',
-      ruta: '/arbitros',
-      color: 'border-red-400',
-    },
-  ];
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto p-4">
+      {/* Título de la sección en armonía con tu navbar */}
       <div>
         <h1 className="text-2xl font-bold text-blue-950">Dashboard</h1>
-        <p className="text-sm text-gray-500">Resumen general del sistema</p>
+        <p className="text-sm text-gray-500">Resumen operativo del torneo activo</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {tarjetas.map((t) => (
-          <button
-            key={t.titulo}
-            onClick={() => navigate(t.ruta)}
-            className={`bg-white rounded-xl shadow p-6 border-l-4 ${t.color} text-left hover:shadow-md transition-shadow w-full`}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-lg font-bold text-blue-950 mb-1">{t.titulo}</h2>
-                <p className="text-gray-500 text-sm">{t.descripcion}</p>
-              </div>
-              <span className="text-2xl">{t.icono}</span>
-            </div>
+      {/* DISEÑO ORIGINAL ASIMÉTRICO (BENTO GRID DEPORTIVO) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* BANNER PRINCIPAL (Ocupa 2 columnas de ancho) - El foco del torneo */}
+        <button
+          onClick={() => navigate('/anotaciones')}
+          className="lg:col-span-2 bg-blue-950 rounded-2xl p-8 text-white flex flex-col justify-between items-start text-left relative overflow-hidden group hover:bg-blue-900 transition-colors shadow-sm"
+        >
+          {/* Fondo decorativo sutil abstract para que parezca una cancha/pizarra */}
+            <div className="absolute right-0 bottom-0 top-0 w-1/4 bg-white/5 border-l border-white/10 pointer-events-none" />
+          
+          <div className="space-y-2 relative z-10">
+            <span className="bg-amber-500 text-blue-950 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider">
+              En Vivo
+            </span>
+            <h2 className="text-2xl font-extrabold tracking-tight pt-2">Mesa de Control Abierta</h2>
+            <p className="text-blue-200 text-sm max-w-md">
+              Gestiona el cronómetro del partido actual, registra las canastas individuales y las asistencias directamente en la pizarra.
+            </p>
+          </div>
 
+          <div className="mt-8 flex items-center gap-2 font-semibold text-sm bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm group-hover:bg-white/20 transition-colors">
+            Abrir panel de anotación en directo
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </button>
+
+        {/* TARJETA VERTICAL ALTA (Ocupa 1 columna de ancho, pero crece hacia abajo) */}
+        <button
+          onClick={() => navigate('/posiciones')}
+          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between text-left hover:border-blue-200 hover:shadow transition-all group"
+        >
+          <div className="space-y-1">
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block">Competencia</span>
+            <h3 className="text-lg font-bold text-blue-950">Partidos Jugados</h3>
+            <p className="text-gray-400 text-xs">Total de encuentros completados en la liga.</p>
+          </div>
+          
+          <div className="my-6">
             {loading ? (
-              <div className="mt-4 h-8 w-16 bg-gray-100 rounded animate-pulse" />
-            ) : t.valor !== null ? (
-              <p className="mt-4 text-4xl font-black text-blue-950">{t.valor}</p>
+              <div className="h-16 w-24 bg-gray-100 rounded-lg animate-pulse" />
             ) : (
-              <p className="mt-4 text-xs text-blue-600 font-semibold uppercase tracking-wide">
-                Ver anotaciones →
-              </p>
+              <span className="text-6xl font-black text-blue-950 font-mono tracking-tight">
+                {stats.partidosJugados}
+              </span>
             )}
-          </button>
-        ))}
+          </div>
+
+          <span className="text-xs font-semibold text-blue-900 uppercase tracking-wider group-hover:text-blue-600">
+            Ver tabla de posiciones
+          </span>
+        </button>
+
+      </div>
+
+      {/* SEGUNDA FILA: Módulos de datos intermedios con cortes limpios */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {/* Jugadores */}
+        <button
+          onClick={() => navigate('/jugadores')}
+          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-left flex flex-col justify-between h-40 hover:border-blue-200 hover:shadow transition-all"
+        >
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Jugadores</h3>
+            <p className="text-sm font-bold text-blue-950 mt-1">Plantillas registradas</p>
+          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+          ) : (
+            <p className="text-4xl font-black text-blue-950 font-mono">{stats.jugadores}</p>
+          )}
+        </button>
+
+        {/* Equipos */}
+        <button
+          onClick={() => navigate('/equipos')}
+          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-left flex flex-col justify-between h-40 hover:border-blue-200 hover:shadow transition-all"
+        >
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipos</h3>
+            <p className="text-sm font-bold text-blue-950 mt-1">Clubes activos</p>
+          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+          ) : (
+            <p className="text-4xl font-black text-blue-950 font-mono">{stats.equipos}</p>
+          )}
+        </button>
+
+        {/* Torneos */}
+        <button
+          onClick={() => navigate('/torneos')}
+          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-left flex flex-col justify-between h-40 hover:border-blue-200 hover:shadow transition-all"
+        >
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Torneos</h3>
+            <p className="text-sm font-bold text-blue-950 mt-1">Fases y ligas</p>
+          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+          ) : (
+            <p className="text-4xl font-black text-blue-950 font-mono">{stats.torneos}</p>
+          )}
+        </button>
+
+        {/* Árbitros */}
+        <button
+          onClick={() => navigate('/arbitros')}
+          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-left flex flex-col justify-between h-40 hover:border-blue-200 hover:shadow transition-all"
+        >
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Árbitros</h3>
+            <p className="text-sm font-bold text-blue-950 mt-1">Cuerpo colegiado</p>
+          </div>
+          {loading ? (
+            <div className="h-8 w-16 bg-gray-100 rounded animate-pulse" />
+          ) : (
+            <p className="text-4xl font-black text-blue-950 font-mono">{stats.arbitros}</p>
+          )}
+        </button>
+
       </div>
     </div>
   );

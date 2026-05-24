@@ -33,8 +33,9 @@ export default function Anotaciones() {
   const [loading, setLoading] = useState(true);
   const [idEquipo1, setIdEquipo1] = useState('');
   const [idEquipo2, setIdEquipo2] = useState('');
-  const [minutos, setMinutos] = useState(10);
-  const [segundos, setSegundos] = useState(0);
+  
+  // CORRECCIÓN: Un solo estado centralizado para el tiempo en segundos totales
+  const [tiempoSegundos, setTiempoSegundos] = useState(600); // 10 minutos por defecto (10 * 60)
   const [corriendo, setCorriendo] = useState(false);
 
   // Modal
@@ -58,9 +59,10 @@ export default function Anotaciones() {
         setEquipos(Array.isArray(listaEquipos) ? listaEquipos : listaEquipos.equipos ?? []);
         setJugadores(Array.isArray(listaJugadores) ? listaJugadores : []);
         setPartido(partidoActivo ?? null);
+        
         if (partidoActivo) {
-          setMinutos(partidoActivo.tiempo_minutos ?? 10);
-          setSegundos(0);
+          // Convertimos los minutos del partido activo a segundos totales
+          setTiempoSegundos((partidoActivo.tiempo_minutos ?? 10) * 60);
         }
       } catch (e) {
         console.error('Error carga inicial:', e);
@@ -72,26 +74,27 @@ export default function Anotaciones() {
     return () => { vivo = false; };
   }, []);
 
-  // Cronómetro
+  // CORRECCIÓN CRONÓMETRO: Descuenta exactamente un segundo a la vez sin bugs de renderizado
   useEffect(() => {
     if (!corriendo) return;
+
     const intervalo = setInterval(() => {
-      setSegundos(prev => {
-        if (prev > 0) return prev - 1;
-        setMinutos(m => {
-          if (m === 0) { setCorriendo(false); return 0; }
-          return m - 1;
-        });
-        return 59;
+      setTiempoSegundos((prev) => {
+        if (prev <= 1) {
+          setCorriendo(false); // Detener el reloj al llegar a cero
+          toast('¡Tiempo agotado!', { icon: '⏰' });
+          return 0;
+        }
+        return prev - 1; // Resta 1 segundo limpiamente
       });
     }, 1000);
+
     return () => clearInterval(intervalo);
   }, [corriendo]);
 
   const ajustarTiempo = (mins: number) => {
     setCorriendo(false);
-    setMinutos(mins);
-    setSegundos(0);
+    setTiempoSegundos(mins * 60); // Setea limpiamente convirtiendo minutos a segundos
   };
 
   const jugadoresEquipo = (equipo: 1 | 2) => {
@@ -115,7 +118,7 @@ export default function Anotaciones() {
 
   const confirmarAnotacion = async () => {
     if (!partido) return;
-    setModalVisible(false); // Cerrar PRIMERO para evitar doble click
+    setModalVisible(false);
 
     const p1 = partido.puntos_equipo1 + (equipoAnotador === 1 ? puntosAnotar : 0);
     const p2 = partido.puntos_equipo2 + (equipoAnotador === 2 ? puntosAnotar : 0);
@@ -151,6 +154,25 @@ export default function Anotaciones() {
     }
   };
 
+  const restarPuntoDirecto = async (equipo: 1 | 2) => {
+    if (!partido) return;
+    
+    if (equipo === 1 && partido.puntos_equipo1 <= 0) return;
+    if (equipo === 2 && partido.puntos_equipo2 <= 0) return;
+
+    const p1 = equipo === 1 ? partido.puntos_equipo1 - 1 : partido.puntos_equipo1;
+    const p2 = equipo === 2 ? partido.puntos_equipo2 - 1 : partido.puntos_equipo2;
+
+    setPartido({ ...partido, puntos_equipo1: p1, puntos_equipo2: p2 });
+
+    try {
+      await api.updatePartido(partido._id, { puntos_equipo1: p1, puntos_equipo2: p2 });
+      toast.success('Punto descontado del marcador');
+    } catch (e) {
+      toast.error('Error al descontar el punto');
+    }
+  };
+
   const crearPartido = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!idEquipo1 || !idEquipo2) return toast.error('Selecciona ambos equipos');
@@ -166,8 +188,7 @@ export default function Anotaciones() {
       });
       const p = await api.getPartidoEnVivo();
       setPartido(p ?? null);
-      setMinutos(10);
-      setSegundos(0);
+      setTiempoSegundos(600); // 10 minutos
     } catch (e) {
       toast.error('Error al crear partido');
     }
@@ -187,12 +208,15 @@ export default function Anotaciones() {
       setPartido(null);
       setIdEquipo1('');
       setIdEquipo2('');
-      setMinutos(10);
-      setSegundos(0);
+      setTiempoSegundos(600);
     } catch (e) {
       toast.error('Error al finalizar el partido');
     }
   };
+
+  // Cálculos matemáticos para renderizar los minutos y segundos visuales
+  const displayMinutos = Math.floor(tiempoSegundos / 60);
+  const displaySegundos = tiempoSegundos % 60;
 
   if (loading) return <p className="p-6 text-gray-500">Cargando...</p>;
 
@@ -203,7 +227,6 @@ export default function Anotaciones() {
         <p className="text-sm text-gray-500 uppercase tracking-wide">Partidos en vivo</p>
       </div>
 
-      {/* Modal */}
       {modalVisible && partido && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-4">
@@ -336,7 +359,7 @@ export default function Anotaciones() {
           <div className="flex flex-col items-center gap-3">
             <span className="text-xs font-bold text-blue-300 tracking-widest">CRONÓMETRO</span>
             <div className="bg-white text-blue-950 font-mono text-4xl font-bold px-8 py-3 rounded-xl shadow-inner">
-              {String(minutos).padStart(2, '0')}:{String(segundos).padStart(2, '0')}
+              {String(displayMinutos).padStart(2, '0')}:{String(displaySegundos).padStart(2, '0')}
             </div>
             <div className="flex gap-2">
               <button type="button" onClick={() => setCorriendo(c => !c)}
@@ -356,12 +379,22 @@ export default function Anotaciones() {
 
           {/* Marcador */}
           <div className="grid grid-cols-2 gap-8">
+            {/* LOCAL */}
             <div className="flex flex-col items-center gap-4">
               <span className="text-xs font-bold text-blue-300">LOCAL</span>
-              <h3 className="text-lg font-bold">{partido.id_equipo1?.nombre_equipo}</h3>
-              <div className="bg-white text-blue-950 text-6xl font-black font-mono w-36 h-36 rounded-3xl flex items-center justify-center shadow-lg">
-                {partido.puntos_equipo1}
+              <h3 className="text-lg font-bold text-center h-14 flex items-center">{partido.id_equipo1?.nombre_equipo}</h3>
+              
+              <div className="flex items-center gap-4">
+                <button type="button" onClick={() => restarPuntoDirecto(1)}
+                  className="bg-red-700 hover:bg-red-600 text-white text-xl font-black w-10 h-10 rounded-full flex items-center justify-center shadow transition-colors">
+                  -
+                </button>
+                
+                <div className="bg-white text-blue-950 text-6xl font-black font-mono w-32 h-32 rounded-3xl flex items-center justify-center shadow-lg">
+                  {partido.puntos_equipo1}
+                </div>
               </div>
+
               <div className="flex gap-2">
                 {[1, 2, 3].map(n => (
                   <button key={n} type="button" onClick={() => abrirModal(1, n)}
@@ -372,12 +405,22 @@ export default function Anotaciones() {
               </div>
             </div>
 
+            {/* VISITANTE */}
             <div className="flex flex-col items-center gap-4">
               <span className="text-xs font-bold text-blue-300">VISITANTE</span>
-              <h3 className="text-lg font-bold">{partido.id_equipo2?.nombre_equipo}</h3>
-              <div className="bg-white text-blue-950 text-6xl font-black font-mono w-36 h-36 rounded-3xl flex items-center justify-center shadow-lg">
-                {partido.puntos_equipo2}
+              <h3 className="text-lg font-bold text-center h-14 flex items-center">{partido.id_equipo2?.nombre_equipo}</h3>
+              
+              <div className="flex items-center gap-4">
+                <div className="bg-white text-blue-950 text-6xl font-black font-mono w-32 h-32 rounded-3xl flex items-center justify-center shadow-lg">
+                  {partido.puntos_equipo2}
+                </div>
+
+                <button type="button" onClick={() => restarPuntoDirecto(2)}
+                  className="bg-red-700 hover:bg-red-600 text-white text-xl font-black w-10 h-10 rounded-full flex items-center justify-center shadow transition-colors">
+                  -
+                </button>
               </div>
+
               <div className="flex gap-2">
                 {[1, 2, 3].map(n => (
                   <button key={n} type="button" onClick={() => abrirModal(2, n)}
