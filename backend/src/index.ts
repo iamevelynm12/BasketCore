@@ -33,9 +33,10 @@ mongoose.connect(process.env.DB_CONNECTION_STRING as string)
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: '*',
+  origin: true, // Esto le dice al servidor que acepte CUALQUIER origen dinámicamente
+  credentials: true, // Permite que pasen los tokens de Auth0 desde el celular
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 app.use(morgan('dev'));
 
