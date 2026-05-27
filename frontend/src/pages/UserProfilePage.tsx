@@ -1,7 +1,7 @@
 import UserProfileForm from "../forms/user-profile-form/UserProfileForm";
 import { useGetUser, useUpdateUser } from "../api/UserApi";
 import { toast } from "sonner";
-import type { UpdateUser,  } from "../api/types";
+import type { UpdateUser } from "../api/types";
 
 export default function UserProfilePage() {
   const { data: currentUser, isLoading, isError } = useGetUser();
@@ -31,8 +31,9 @@ export default function UserProfilePage() {
   return (
     <div className="space-y-6">
       <UserProfileForm 
-      onSave={onSave}
-       currentUser={currentUser} />
+        onSave={onSave}
+        currentUser={currentUser} 
+      />
     </div>
   );
 }

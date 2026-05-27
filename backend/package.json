@@ -4,8 +4,9 @@
   "description": "",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "nodemon --exec tsx src/index.ts"
-  },
+  "build": "tsc",
+  "start": "node dist/index.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
