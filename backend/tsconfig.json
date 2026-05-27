@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "target": "es2016",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -10,5 +12,4 @@
     "skipLibCheck": true,
     "sourceMap": true
   }
-  
 }
