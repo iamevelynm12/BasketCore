@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter as Router } from "react-router"
 import "./index.css"
 import AppRoutes from "./AppRoutes"
-import Auth0ProviderWithNavigate from './auth/auth0ProviderWithNavigate';
+import Auth0ProviderWithNavigate from './auth/Auth0ProviderWithNavigate';
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "./queryClient";
 import { Toaster } from "@/components/ui/sonner";
