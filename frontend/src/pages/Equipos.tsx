@@ -12,8 +12,7 @@ type Equipo = {
   imageUrl?: string;
 };
 
-const rawUrl = import.meta.env.VITE_API_BASE_URL || '';
-const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Equipos() {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
@@ -27,7 +26,7 @@ export default function Equipos() {
   });
 
   const cargarEquipos = async () => {
-    const data = await fetch(`${API_BASE_URL}/api/equipos`).then(r => r.json());
+    const data = await fetch(`${API_BASE_URL}/equipos`).then(r => r.json());
     setEquipos(data);
     setLoading(false);
   };
@@ -69,12 +68,12 @@ export default function Equipos() {
     if (imageFile) formData.append('imageFile', imageFile);
 
     if (editingEquipo) {
-      await fetch(`${API_BASE_URL}/api/equipos/${editingEquipo._id}`, {
+      await fetch(`${API_BASE_URL}/equipos/${editingEquipo._id}`, {
         method: 'PUT',
         body: formData
       });
     } else {
-      await fetch(`${API_BASE_URL}/api/equipos`, {
+      await fetch(`${API_BASE_URL}/equipos`, {
         method: 'POST',
         body: formData
       });
@@ -86,7 +85,7 @@ export default function Equipos() {
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar este equipo?')) {
-      await fetch(`${API_BASE_URL}/api/equipos/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/equipos/${id}`, { method: 'DELETE' });
       cargarEquipos();
     }
   };
