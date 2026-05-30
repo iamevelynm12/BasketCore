@@ -12,7 +12,8 @@ type Equipo = {
   imageUrl?: string;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const rawUrl = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl;
 
 export default function Equipos() {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
