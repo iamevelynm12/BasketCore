@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Toaster, toast } from 'sonner';
 import { api } from '../services/api';
 
 type Torneo = {
@@ -19,32 +20,91 @@ export default function Torneos() {
     categoria: '', sede: ''
   });
 
+  // Estado para validar de manera estricta los campos vacíos del Torneo
+  const [errores, setErrores] = useState({
+    nombre_torneo: false,
+    fecha_inicio: false,
+    fecha_final: false,
+    categoria: false,
+    sede: false
+  });
+
   const cargarTorneos = async () => {
-    const data = await api.getTorneos();
-    setTorneos(data);
-    setLoading(false);
+    try {
+      const data = await api.getTorneos();
+      setTorneos(data);
+    } catch (error) {
+      toast.error('Falla en Cloud API (500)', {
+        description: 'Imposible estructurar los datos del torneo desde MongoDB Atlas.'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { cargarTorneos(); }, []);
 
+  const handleCancel = () => {
+    setShowForm(false);
+    setForm({ nombre_torneo: '', fecha_inicio: '', fecha_final: '', categoria: '', sede: '' });
+    setErrores({ nombre_torneo: false, fecha_inicio: false, fecha_final: false, categoria: false, sede: false });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.createTorneo(form);
-    setForm({ nombre_torneo: '', fecha_inicio: '', fecha_final: '',
-      categoria: '', sede: '' });
-    setShowForm(false);
-    cargarTorneos();
+
+    // Mapeo completo de inputs requeridos
+    const nuevosErrores = {
+      nombre_torneo: !form.nombre_torneo.trim(),
+      fecha_inicio: !form.fecha_inicio,
+      fecha_final: !form.fecha_final,
+      categoria: !form.categoria,
+      sede: !form.sede.trim()
+    };
+    setErrores(nuevosErrores);
+
+    // Detener si existe algún elemento faltante
+    if (Object.values(nuevosErrores).some(error => error)) {
+      toast.error('Campos obligatorios vacíos (Error 400)', {
+        description: 'Complete todos los recuadros marcados en rojo antes de proceder.'
+      });
+      return;
+    }
+
+    try {
+      await api.createTorneo(form);
+      toast.success('Torneo creado (201 Created)', {
+        description: `La copa ${form.nombre_torneo} ha sido aperturada exitosamente.`
+      });
+      handleCancel();
+      cargarTorneos();
+    } catch (error) {
+      toast.error('Falla interna (500)', {
+        description: 'La base de datos denegó la inserción del nuevo torneo.'
+      });
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar este torneo?')) {
-      await api.deleteTorneo(id);
-      cargarTorneos();
+      try {
+        await api.deleteTorneo(id);
+        toast.info('Torneo cancelado', {
+          description: 'El torneo ha sido borrado del histórico de la liga.'
+        });
+        cargarTorneos();
+      } catch (error) {
+        toast.error('Error al remover torneo', {
+          description: 'No se cuenta con la respuesta exitosa del servidor.'
+        });
+      }
     }
   };
 
   return (
     <div className="space-y-6">
+      <Toaster richColors position="top-right" closeButton />
+
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-blue-950">Torneos</h1>
         <button onClick={() => setShowForm(!showForm)}
@@ -56,43 +116,80 @@ export default function Torneos() {
       {showForm && (
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-bold text-blue-950 mb-4">Nuevo Torneo</h2>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input required placeholder="Nombre del torneo"
-              className="border rounded-lg px-3 py-2 text-sm md:col-span-2"
-              value={form.nombre_torneo}
-              onChange={e => setForm({ ...form, nombre_torneo: e.target.value })} />
+          <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Campo: Nombre del Torneo */}
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <input placeholder="Nombre del torneo"
+                className={`border rounded-lg px-3 py-2 text-sm ${errores.nombre_torneo ? 'border-red-500 focus:outline-red-500' : ''}`}
+                value={form.nombre_torneo}
+                onChange={e => {
+                  setForm({ ...form, nombre_torneo: e.target.value });
+                  if (e.target.value.trim()) setErrores({ ...errores, nombre_torneo: false });
+                }} />
+              {errores.nombre_torneo && <span className="text-red-500 text-xs font-medium pl-1">El nombre del torneo es mandatorio</span>}
+            </div>
+
+            {/* Campo: Fecha de Inicio */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Fecha inicio</label>
-              <input required type="date"
-                className="border rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-gray-500 pl-1">Fecha inicio</label>
+              <input type="date"
+                className={`border rounded-lg px-3 py-2 text-sm ${errores.fecha_inicio ? 'border-red-500 focus:outline-red-500' : ''}`}
                 value={form.fecha_inicio}
-                onChange={e => setForm({ ...form, fecha_inicio: e.target.value })} />
+                onChange={e => {
+                  setForm({ ...form, fecha_inicio: e.target.value });
+                  if (e.target.value) setErrores({ ...errores, fecha_inicio: false });
+                }} />
+              {errores.fecha_inicio && <span className="text-red-500 text-xs font-medium pl-1">Especifique la fecha inicial</span>}
             </div>
+
+            {/* Campo: Fecha Final */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Fecha final</label>
-              <input required type="date"
-                className="border rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-gray-500 pl-1">Fecha final</label>
+              <input type="date"
+                className={`border rounded-lg px-3 py-2 text-sm ${errores.fecha_final ? 'border-red-500 focus:outline-red-500' : ''}`}
                 value={form.fecha_final}
-                onChange={e => setForm({ ...form, fecha_final: e.target.value })} />
+                onChange={e => {
+                  setForm({ ...form, fecha_final: e.target.value });
+                  if (e.target.value) setErrores({ ...errores, fecha_final: false });
+                }} />
+              {errores.fecha_final && <span className="text-red-500 text-xs font-medium pl-1">Especifique la fecha de clausura</span>}
             </div>
-            <select required className="border rounded-lg px-3 py-2 text-sm"
-              value={form.categoria}
-              onChange={e => setForm({ ...form, categoria: e.target.value })}>
-              <option value="">Categoría</option>
-              <option value="Varonil">Varonil</option>
-              <option value="Femenil">Femenil</option>
-              <option value="Mixto">Mixto</option>
-            </select>
-            <input required placeholder="Sede"
-              className="border rounded-lg px-3 py-2 text-sm"
-              value={form.sede}
-              onChange={e => setForm({ ...form, sede: e.target.value })} />
-            <div className="md:col-span-2 flex gap-3">
+
+            {/* Campo: Categoría */}
+            <div className="flex flex-col gap-1">
+              <select className={`border rounded-lg px-3 py-2 text-sm ${errores.categoria ? 'border-red-500 focus:outline-red-500' : ''}`}
+                value={form.categoria}
+                onChange={e => {
+                  setForm({ ...form, categoria: e.target.value });
+                  if (e.target.value) setErrores({ ...errores, categoria: false });
+                }}>
+                <option value="">Categoría</option>
+                <option value="Varonil">Varonil</option>
+                <option value="Femenil">Femenil</option>
+                <option value="Mixto">Mixto</option>
+              </select>
+              {errores.categoria && <span className="text-red-500 text-xs font-medium pl-1">Seleccione una categoría reglamentaria</span>}
+            </div>
+
+            {/* Campo: Sede */}
+            <div className="flex flex-col gap-1">
+              <input placeholder="Sede"
+                className={`border rounded-lg px-3 py-2 text-sm ${errores.sede ? 'border-red-500 focus:outline-red-500' : ''}`}
+                value={form.sede}
+                onChange={e => {
+                  setForm({ ...form, sede: e.target.value });
+                  if (e.target.value.trim()) setErrores({ ...errores, sede: false });
+                }} />
+              {errores.sede && <span className="text-red-500 text-xs font-medium pl-1">La cancha o sede es obligatoria</span>}
+            </div>
+
+            <div className="md:col-span-2 flex gap-3 mt-2">
               <button type="submit"
                 className="bg-blue-950 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-800">
                 Guardar
               </button>
-              <button type="button" onClick={() => setShowForm(false)}
+              <button type="button" onClick={handleCancel}
                 className="border border-gray-300 px-6 py-2 rounded-lg text-sm hover:bg-gray-50">
                 Cancelar
               </button>

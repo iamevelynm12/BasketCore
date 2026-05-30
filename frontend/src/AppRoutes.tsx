@@ -11,7 +11,7 @@ import Configuracion from './pages/Configuraciones';
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCallBackPage from "./pages/AuthCallBackPage";
-
+import { Toaster } from 'sonner';
 import UserProfilePage from "./pages/UserProfilePage";
 
 const AppRoutes = () => {
@@ -74,6 +74,7 @@ const AppRoutes = () => {
 
       {/* Ruta no encontrada */}
       <Route path="*" element={<Navigate to="/" />} />
+      <Toaster richColors position="top-right" closeButton />
     </Routes>
    
   );
