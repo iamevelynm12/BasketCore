@@ -16,67 +16,71 @@ import UserProfilePage from "./pages/UserProfilePage";
 
 const AppRoutes = () => {
   return (
-    
-    <Routes>
-      {/* Ruta pública - Login */}
-      <Route path="/" element={<Login />} />
+    <> {/* Envolvemos todo en un fragmento de React */}
+      <Routes>
+        {/* Ruta pública - Login */}
+        <Route path="/" element={<Login />} />
 
-      {/* AuthCallBack*/}
+        {/* AuthCallBack */}
+        <Route path="/auth-callback" element={<AuthCallBackPage />} />
 
-      <Route path="/auth-callback" element={<AuthCallBackPage />} />
+        {/* Rutas protegidas */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layouts><Dashboard /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/equipos" element={
+          <ProtectedRoute>
+            <Layouts><Equipos /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/jugadores" element={
+          <ProtectedRoute>
+            <Layouts><Jugadores /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/arbitros" element={
+          <ProtectedRoute>
+            <Layouts><Arbitros /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/torneos" element={
+          <ProtectedRoute>
+            <Layouts><Torneos /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/posiciones" element={
+          <ProtectedRoute>
+            <Layouts><Posiciones /></Layouts>
+          </ProtectedRoute>
+        } />
+        
+        {/* Arreglado: Se cerró correctamente la etiqueta </ProtectedRoute> */}
+        <Route path="/perfil" element={
+          <ProtectedRoute>
+            <Layouts><UserProfilePage /></Layouts>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/anotaciones" element={
+          <ProtectedRoute>
+            <Layouts><Anotaciones /></Layouts>
+          </ProtectedRoute>
+        } />
+        <Route path="/configuracion" element={
+          <ProtectedRoute>
+            <Layouts><Configuracion /></Layouts>
+          </ProtectedRoute>
+        } />
 
-      {/* Rutas protegidas */}
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layouts><Dashboard /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/equipos" element={
-        <ProtectedRoute>
-          <Layouts><Equipos /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/jugadores" element={
-        <ProtectedRoute>
-          <Layouts><Jugadores /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/arbitros" element={
-        <ProtectedRoute>
-          <Layouts><Arbitros /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/torneos" element={
-        <ProtectedRoute>
-          <Layouts><Torneos /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/posiciones" element={
-        <ProtectedRoute>
-          <Layouts><Posiciones /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/perfil" element={
-        <ProtectedRoute>
-          <Layouts><UserProfilePage /></Layouts>
-     </ProtectedRoute>
-      } />
-      <Route path="/anotaciones" element={
-        <ProtectedRoute>
-          <Layouts><Anotaciones /></Layouts>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuracion" element={
-        <ProtectedRoute>
-          <Layouts><Configuracion /></Layouts>
-        </ProtectedRoute>
-      } />
+        {/* Ruta no encontrada */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
 
-      {/* Ruta no encontrada */}
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* Arreglado: El Toaster se movió AFUERA de <Routes> */}
       <Toaster richColors position="top-right" closeButton />
-    </Routes>
-   
+    </>
   );
 };
 
