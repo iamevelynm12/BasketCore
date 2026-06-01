@@ -13,7 +13,7 @@ router.put('/', jwtCheck, jwtParse, validateUserRequest, updateUser);
 
 // Ruta GET: /api/user — obtener datos del usuario
 router.get('/', (req,res,next)=>{
-    console.log("GET /user recibido");
+    console.log("GET /api/user recibido");
     next();
 }, jwtCheck, jwtParse,getUser);
 

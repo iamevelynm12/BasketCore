@@ -45,7 +45,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', userRoutes);
+app.use('/api/users', userRoutes);
 
 app.use('/api/partidos', partidosRoutes);
 app.use('/api/torneos', torneosRouter);
