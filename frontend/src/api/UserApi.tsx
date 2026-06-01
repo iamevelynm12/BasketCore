@@ -11,7 +11,7 @@ export const useCreateUser = () => {
 
   const createUserRequest = async (user: User) => {
     const accessToken = await getAccessTokenSilently();
-    const response = await fetch(`${API_BASE_URL}/api/users`, {
+    const response = await fetch(`${API_BASE_URL}/users`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -42,7 +42,7 @@ export const useUpdateUser = () => {
 
   const updateUserRequest = async (user: UpdateUser) => {
     const accessToken = await getAccessTokenSilently();
-    const response = await fetch(`${API_BASE_URL}/api/users`, {
+    const response = await fetch(`${API_BASE_URL}/users`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -73,7 +73,7 @@ export const useGetUser = () => {
 
   const getUserRequest = async (): Promise<BackEndUser> => {
     const accessToken = await getAccessTokenSilently();
-    const response = await fetch(`${API_BASE_URL}/api/users`, {
+    const response = await fetch(`${API_BASE_URL}/users`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
