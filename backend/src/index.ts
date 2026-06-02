@@ -34,7 +34,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: true, // Esto le dice al servidor que acepte CUALQUIER origen dinámicamente
-  credentials: true, // Permite que pasen los tokens de Auth0 desde el celular
+  credentials: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
