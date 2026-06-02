@@ -110,7 +110,7 @@ export default function Configuracion() {
 
           <div className="bg-blue-50 rounded-lg p-4">
             <p className="text-xs text-blue-700 font-medium">
-              📋 Estas reglas están definidas por la coordinación deportiva del ITZ 
+              Estas reglas están definidas por la coordinación deportiva del ITZ 
               en conjunto con el reglamento oficial FIBA 2024. Para modificaciones 
               contacta al administrador del torneo.
             </p>

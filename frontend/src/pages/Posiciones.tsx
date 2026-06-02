@@ -21,19 +21,19 @@ export default function Posiciones() {
       const datos = await api.getTablaPosiciones();
       if (Array.isArray(datos)) {
         
-        // CORRECCIÓN: Ordenar dinámicamente antes de actualizar el estado
+        // ordenar los equipos por victorias 
         const equiposOrdenados = [...datos].sort((a, b) => {
           const ganadasA = a.ganadas || 0;
           const ganadasB = b.ganadas || 0;
           const derrotasA = a.derrotas || 0;
           const derrotasB = b.derrotas || 0;
 
-          // 1. Criterio principal: Mayor número de victorias
+          // mayor numero de victorias
           if (ganadasB !== ganadasA) {
             return ganadasB - ganadasA; // El que tenga más victorias sube
           }
           
-          // 2. Criterio de desempate: Menor número de derrotas
+          // menor numero de derrotass
           return derrotasA - derrotasB; // El que tenga menos derrotas sube
         });
 

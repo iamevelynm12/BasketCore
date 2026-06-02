@@ -64,15 +64,15 @@ export default function Dashboard() {
         <p className="text-sm text-gray-500">Resumen operativo del torneo activo</p>
       </div>
 
-      {/* DISEÑO ORIGINAL ASIMÉTRICO (BENTO GRID DEPORTIVO) */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* BANNER PRINCIPAL (Ocupa 2 columnas de ancho) - El foco del torneo */}
+        {/* BANNER PRINCIPAL */}
         <button
           onClick={() => navigate('/anotaciones')}
           className="lg:col-span-2 bg-blue-950 rounded-2xl p-8 text-white flex flex-col justify-between items-start text-left relative overflow-hidden group hover:bg-blue-900 transition-colors shadow-sm"
         >
-          {/* Fondo decorativo sutil abstract para que parezca una cancha/pizarra */}
+          
             <div className="absolute right-0 bottom-0 top-0 w-1/4 bg-white/5 border-l border-white/10 pointer-events-none" />
           
           <div className="space-y-2 relative z-10">

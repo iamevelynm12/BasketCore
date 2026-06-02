@@ -56,7 +56,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } />
         
-        {/* Arreglado: Se cerró correctamente la etiqueta </ProtectedRoute> */}
+        
         <Route path="/perfil" element={
           <ProtectedRoute>
             <Layouts><UserProfilePage /></Layouts>
@@ -77,8 +77,7 @@ const AppRoutes = () => {
         {/* Ruta no encontrada */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-
-      {/* Arreglado: El Toaster se movió AFUERA de <Routes> */}
+      
       <Toaster richColors position="top-right" closeButton />
     </>
   );

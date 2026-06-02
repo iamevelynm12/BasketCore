@@ -34,7 +34,7 @@ export default function Anotaciones() {
   const [idEquipo1, setIdEquipo1] = useState('');
   const [idEquipo2, setIdEquipo2] = useState('');
   
-  // CORRECCIÓN: Un solo estado centralizado para el tiempo en segundos totales
+  // Un solo estado centralizado para el tiempo en segundos totales
   const [tiempoSegundos, setTiempoSegundos] = useState(600); // 10 minutos por defecto (10 * 60)
   const [corriendo, setCorriendo] = useState(false);
 
@@ -74,7 +74,7 @@ export default function Anotaciones() {
     return () => { vivo = false; };
   }, []);
 
-  // CORRECCIÓN CRONÓMETRO: Descuenta exactamente un segundo a la vez sin bugs de renderizado
+  // cronometro centralizado que maneja el tiempo en segundos totales
   useEffect(() => {
     if (!corriendo) return;
 
@@ -82,7 +82,7 @@ export default function Anotaciones() {
       setTiempoSegundos((prev) => {
         if (prev <= 1) {
           setCorriendo(false); // Detener el reloj al llegar a cero
-          toast('¡Tiempo agotado!', { icon: '⏰' });
+          toast('¡Tiempo agotado!');
           return 0;
         }
         return prev - 1; // Resta 1 segundo limpiamente
@@ -94,7 +94,7 @@ export default function Anotaciones() {
 
   const ajustarTiempo = (mins: number) => {
     setCorriendo(false);
-    setTiempoSegundos(mins * 60); // Setea limpiamente convirtiendo minutos a segundos
+    setTiempoSegundos(mins * 60); // minutos a segundos totales
   };
 
   const jugadoresEquipo = (equipo: 1 | 2) => {

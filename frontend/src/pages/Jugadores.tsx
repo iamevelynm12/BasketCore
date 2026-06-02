@@ -69,7 +69,7 @@ export default function Jugadores() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificación explícita de campos obligatorios
+    // Verificación de campos obligatorios
     const nuevosErrores = {
       nombre_jugador: !form.nombre_jugador.trim(),
       num_playera: form.num_playera < 0 || form.num_playera === null || form.num_playera === undefined

@@ -28,7 +28,7 @@ export default function Equipos() {
     entrenador: '', carrera: '', ganadas: 0, derrotas: 0
   });
 
-  // NUEVO: Estado para rastrear qué campos tienen errores individuales
+  // estado para rastrear que campos tienen errores individuales
   const [errores, setErrores] = useState({
     nombre_equipo: false,
     abreviatura: false,
@@ -79,7 +79,7 @@ export default function Equipos() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Evaluar qué campos específicos están vacíos
+    // Evaluar que campos específicos están vacíos
     const nuevosErrores = {
       nombre_equipo: !form.nombre_equipo.trim(),
       abreviatura: !form.abreviatura.trim(),
@@ -89,7 +89,7 @@ export default function Equipos() {
 
     setErrores(nuevosErrores);
 
-    // Si cualquiera de los campos obligatorios está vacío, se detiene el flujo y se avisa con Toast
+    // Si hay campos vacios lanza el toast
     if (nuevosErrores.nombre_equipo || nuevosErrores.abreviatura || nuevosErrores.categoria || nuevosErrores.entrenador) {
       toast.error('Campos obligatorios vacíos (Error 400)', {
         description: 'Por favor, revisa las alertas en rojo debajo de cada campo del formulario.'
@@ -183,7 +183,6 @@ export default function Equipos() {
           <h2 className="text-lg font-bold text-blue-950 mb-4">
             {editingEquipo ? 'Editar Equipo' : 'Nuevo Equipo'}
           </h2>
-          {/* Quitamos el 'required' nativo de HTML para permitir que nuestra lógica controle las alertas en rojo */}
           <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Campo: Nombre del Equipo */}

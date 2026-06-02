@@ -20,7 +20,7 @@ export default function Torneos() {
     categoria: '', sede: ''
   });
 
-  // Estado para validar de manera estricta los campos vacíos del Torneo
+  // validar los campos
   const [errores, setErrores] = useState({
     nombre_torneo: false,
     fecha_inicio: false,
